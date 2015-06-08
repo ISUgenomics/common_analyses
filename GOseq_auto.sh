@@ -3,6 +3,13 @@
 module unload R
 module load R/3.1.2
 
+
+#define the go annotation file
+export goAnnot="go_annotation.sorted.uniq.Mapped"
+#define the gene lengths file
+export geneLen="gene.lengths.txt"
+
+
 #create a list of your genes of interest
 #one per line
 #geneID1
@@ -36,12 +43,6 @@ export labelallg="Allgenes"
 
 #r awk '{print $1}' GOI_factorFile.txt Allgenes_factorFile.txt
 cat $GOI $Allgenes | sort | uniq -c | awk 'BEGIN{OFS="\t"} ($1==1) {print "'$labelallg'",$2} ($1==2) {print "'$labelgoi'",$2}' >factor_file_$GOI 
-
-#define the go annotation file
-export goAnnot="go_annotation.sorted.uniq.Mapped"
-
-#define the gene lengths file
-export geneLen="gene.lengths.txt"
 
 run_GOseq.pl --factor_labeling factor_file_$GOI  --GO_assignments $goAnnot  --lengths $geneLen 
 
