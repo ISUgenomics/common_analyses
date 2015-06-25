@@ -1,6 +1,7 @@
 #!/bin/bash
 # Prepares the Reference Genome for mapping as well as for using it with GATK pipeline
-# You need to supply the referece genome as REF below
+# You need to supply the referece genome as REF below or as:
+# ./GATK_00_PrepareRef.sh your_genome.fasta
 module load picard_tools
 module load samtools
 module load bwa
