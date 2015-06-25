@@ -18,7 +18,7 @@ FIL
 # Create interval list (here 100 kb intervals)
 fasta_length.py ${REF} > ${REF%.*}_length.txt
 bedtools makewindows -w 100000 -g ${REF%.*}_length.txt > ${REF%.*}_100kb_coords.bed
-java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar BedToIntervalList \
+java -Xmx100G -jar $PICARD/picard.jar BedToIntervalList \
   INPUT=${REF%.*}_100kb_coords.bed \
   SEQUENCE_DICTIONARY=${REF%.*}.dict \
   OUTPUT=${REF%.*}_100kb_gatk_intervals.list
