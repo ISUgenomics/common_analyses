@@ -5,19 +5,19 @@
 # 1. Alignment files in BAM format (for each line separately) with names formated as uniquename_otherinfo.bam
 #    unique name shouldn't have any underscores in them, otherinfo added will be used for the readgroup [REQUIRED]
 # 2. Reference genome in FASTA format (should be the same that was used for mapping) [REQUIRED]
-
+#GATK variable needs to be set to GATK directory
 module load picard_tools
 module load java
 module load samtools
 
 FILE="$1"
-REF="/home/arnstrm/arnstrm/20150413_Graham_SoybeanFST/01_DATA/B_REF/Gmax_275_v2.0.fa"
+REF="$2"
+#REF="/home/arnstrm/arnstrm/20150413_Graham_SoybeanFST/01_DATA/B_REF/Gmax_275_v2.0.fa"
 SAMPLE=$(echo ${FILE} |cut -d "_" -f 1)
 UNIT=$(echo ${FILE} |cut -d "_" -f 2)
-
 ## Sorting BAM file
 echo ${TMPDIR};
-java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar SortSam \
+java -Xmx100G -jar $PICARD/picard.jar SortSam \
   INPUT=${FILE} \
   OUTPUT=${TMPDIR}/${FILE%.*}_picsort.bam \
   SORT_ORDER=coordinate \
@@ -27,7 +27,7 @@ java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar 
 }
 cp ${TMPDIR}/${FILE%.*}_picsort.bam $PBS_O_WORKDIR/
 ## Cleaning Alignment file
-java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar CleanSam \
+java -Xmx100G -jar $PICARD/picard.jar CleanSam \
   TMP_DIR=${TMPDIR} \
   INPUT=${TMPDIR}/${FILE%.*}_picsort.bam \
   OUTPUT=${TMPDIR}/${FILE%.*}_picsort_cleaned.bam \
@@ -37,7 +37,7 @@ java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar 
 }
 cp ${TMPDIR}/${FILE%.*}_picsort_cleaned.bam $PBS_O_WORKDIR/
 ## Marking Duplicates
-java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar MarkDuplicates \
+java -Xmx100G -jar $PICARD/picard.jar MarkDuplicates \
   TMP_DIR=${TMPDIR} \
   INPUT=${TMPDIR}/${FILE%.*}_picsort_cleaned.bam \
   OUTPUT=${TMPDIR}/${FILE%.*}_dedup.bam \
@@ -51,7 +51,7 @@ java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar 
 cp ${TMPDIR}/${FILE%.*}_metrics.txt $PBS_O_WORKDIR/
 cp ${TMPDIR}/${FILE%.*}_dedup.bam $PBS_O_WORKDIR/
 ## Adding RG info
-java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar AddOrReplaceReadGroups \
+java -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadGroups \
   TMP_DIR=${TMPDIR} \
   INPUT=${TMPDIR}/${FILE%.*}_dedup.bam \
   OUTPUT=${TMPDIR}/${FILE%.*}_dedup_RG.bam \
