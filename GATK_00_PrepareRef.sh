@@ -7,10 +7,11 @@ module load samtools
 module load bwa
 module load bedtools
 module load parallel
+module load python
 REF="$1"
 #index genome for (a) picard, (b) samtools and (c) bwa
 parallel <<FIL
-java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar CreateSequenceDictionary \
+java -Xmx100G -jar $PICARD/picard.jar CreateSequenceDictionary \
   REFERENCE=${REF} \
   OUTPUT=${REF%.*}.dict
 samtools faidx ${REF}
