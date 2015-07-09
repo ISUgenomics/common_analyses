@@ -7,17 +7,18 @@ module load samtools
 module load bwa
 module load bedtools
 module load parallel
+module load python
 REF="$1"
 #index genome for (a) picard, (b) samtools and (c) bwa
 parallel <<FIL
-java -Xmx100G -jar /data003/GIF/software/packages/picard_tools/1.130/picard.jar CreateSequenceDictionary \
+java -Xmx100G -jar $PICARD/picard.jar CreateSequenceDictionary \
   REFERENCE=${REF} \
   OUTPUT=${REF%.*}.dict
 samtools faidx ${REF}
 bwa index -a bwtsw ${REF}
 FIL
 # Create interval list (here 100 kb intervals)
-fasta_length.py ${REF} > ${REF%.*}_length.txt
+python fasta_length.py ${REF} > ${REF%.*}_length.txt
 bedtools makewindows -w 100000 -g ${REF%.*}_length.txt > ${REF%.*}_100kb_coords.bed
 java -Xmx100G -jar $PICARD/picard.jar BedToIntervalList \
   INPUT=${REF%.*}_100kb_coords.bed \
