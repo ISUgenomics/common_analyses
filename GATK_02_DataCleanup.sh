@@ -9,15 +9,19 @@
 module load picard_tools
 module load java
 module load samtools
-
+module load gatk
 FILE="$1"
 REF="$2"
-#REF="/home/arnstrm/arnstrm/20150413_Graham_SoybeanFST/01_DATA/B_REF/Gmax_275_v2.0.fa"
+# for adding read group info
+# if filenames don't have 3 fields, manually add them below
 SAMPLE=$(echo ${FILE} |cut -d "_" -f 1)
 UNIT=$(echo ${FILE} |cut -d "_" -f 2)
+RGLB=$(echo ${FILE} |cut -d "_" -f 3)
+
 ## Sorting BAM file
 echo ${TMPDIR};
 java -Xmx100G -jar $PICARD/picard.jar SortSam \
+  TMP_DIR=${TMPDIR}\
   INPUT=${FILE} \
   OUTPUT=${TMPDIR}/${FILE%.*}_picsort.bam \
   SORT_ORDER=coordinate \
@@ -55,7 +59,7 @@ java -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadGroups \
   TMP_DIR=${TMPDIR} \
   INPUT=${TMPDIR}/${FILE%.*}_dedup.bam \
   OUTPUT=${TMPDIR}/${FILE%.*}_dedup_RG.bam \
-  RGID=${SAMPLE} RGLB=SoyBean \
+  RGID=${SAMPLE} RGLB=${RGLB} \
   RGPL=illumina \
   RGPU=${UNIT} \
   RGSM=${SAMPLE} \
