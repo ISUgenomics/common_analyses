@@ -5,13 +5,26 @@
 # 1. Alignment files in BAM format (for each line separately) with names formated as uniquename_otherinfo.bam
 #    unique name shouldn't have any underscores in them, otherinfo added will be used for the readgroup [REQUIRED]
 # 2. Reference genome in FASTA format (should be the same that was used for mapping) [REQUIRED]
-#GATK variable needs to be set to GATK directory
+# GATK variable needs to be set to GATK directory
+
+######################################
+### Format file names as:
+###
+### <UNIQIE_FILE_IDENTIFIER>_<REFERENCEGENOME>_<EXPTTITLE>.bam
+###
+### This will ensure that the Read Group will be properly parsed
+### Else you need to manually add them below (SAMPLE, UNIT, RGLB)
+###
+######################################
+
 module load picard_tools
 module load java
 module load samtools
 module load gatk
+
 FILE="$1"
 REF="$2"
+
 # for adding read group info
 # if filenames don't have 3 fields, manually add them below
 SAMPLE=$(echo ${FILE} |cut -d "_" -f 1)
