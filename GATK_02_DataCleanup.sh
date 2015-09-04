@@ -30,6 +30,7 @@ REF="$2"
 SAMPLE=$(echo ${FILE} |cut -d "_" -f 1)
 UNIT=$(echo ${FILE} |cut -d "_" -f 2)
 RGLB=$(echo ${FILE} |cut -d "_" -f 3)
+TMPDIR=/local/scratch/${USER}/${PBS_JOBID}
 
 ## Sorting BAM file
 echo ${TMPDIR};

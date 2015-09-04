@@ -1,12 +1,18 @@
 #!/bin/bash
+module load perl
+module load vcftools
+module load gatk
+
 vcffile=(*.vcf)
+
 RAW="combined_variants.vcf"
 REFERENCE="/data003/GIF/arnstrm/20150413_Graham_SoybeanFST/01_DATA/B_REF/Gmax_275_v2.0.fa"
-MAXDEPTH=19950
+#MAXDEPTH=19950
 GATK="/data003/GIF/software/packages/gatk/3.3"
 
 vcf-concat ${vcffile[@]} >> ../${RAW}
 
+MAXDEPTH=$(grep -oh ";DP=.*;" ${RAW} | cut -d ";" -f 2 | cut -d "="  -f 2 | st --sd |awk '{print $0*5}')
 cat ../${RAW} | vcf-sort -t $TMPDIR -p 16 -c > ${RAW}_sorted.vcf
 
 java -Xmx120g -Djava.io.tmpdir=$TMPDIR -jar ${GATK}/GenomeAnalysisTK.jar \
