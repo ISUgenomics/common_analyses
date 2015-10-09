@@ -1,6 +1,10 @@
 #!/bin/bash
 # runs the busco pipeline on the genome assesment mode
 # if your genome is not plan change the select the suitable option below
+# run it as:
+# sh runBUSCO_genome.sh genome.fasta
+# Arun Seetharam
+# 2015/10/09 <arnstrm@iastate.edu>
 
 #+++++++++++++++++++++
 ORG=plantae
