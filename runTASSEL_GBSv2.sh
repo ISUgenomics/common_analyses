@@ -1,6 +1,12 @@
 #!/bin/bash
 # only 5.2.16 supports GBS V2 pipeline
+
+# Arun Seetharam
+# 10/20/2015
+# <arnstrm@iastate.edu>
+
 module load tassel/5.2.16
+
 ###################
 # C A U T I O N
 ###################
