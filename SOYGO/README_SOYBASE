@@ -1,0 +1,21 @@
+1. To just look up GO ids assigned to Glyma2 gene call
+   perl GOinfoKevinupdate2.pl ANML.list Gmv2_GODb > ANML.4Kevin
+2. To start running GOstats (gather all go data put in fisher format)
+   perl SOYGO.pl Gmv2_GODb ANML.list
+
+   This will create the following files...
+
+   ANML.list_BP.txt		  ANML.list_BP_out.txt	ANML.list_MF_fisher.txt
+   ANML.list_BP_fisher.txt	  ANML.list_ERROR.txt	ANML.list_MF_names.txt
+   ANML.list_BP_names.txt	  ANML.list_MF.txt	ANML.list_MF_out.txt
+
+3. Run fisher test
+   R CMD BATCH "--args ANML.list" Script_Fisher.R
+
+   This wiill create the following files...
+   ANML.list_BP_output.txt
+   ANML.list_MF_output.txt
+
+4. Combine all the data into 1 file for BP and MF
+   perl combinefilesbyGO.pl ANML.list_BP_fisher.txt ATH_GO_GOSLIM.022714  ANML.list_BP_output.txt > ANML.BP.final
+   perl combinefilesbyGO.pl ANML.list_MF_fisher.txt ATH_GO_GOSLIM.022714  ANML.list_BP_output.txt > ANML.MF.final 
