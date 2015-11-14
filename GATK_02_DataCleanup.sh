@@ -18,6 +18,7 @@
 
 module load picard_tools
 module load samtools
+module load java 
 module load gatk
 module load $1
 
@@ -29,8 +30,7 @@ REF="$GENOMEFASTA"
 SAMPLE=$(echo ${FILE} | cut -d "_" -f 1)
 UNIT=$(echo ${FILE} | cut -d "_" -f 2)
 RGLB=$(echo ${FILE} | cut -d "_" -f 3)
-TMPDIR='/local/scratch/${USER}/${PBS_JOBID}'
-module load java -Djava.io.tmpdir=${TMPDIR}
+TMPDIR=/local/scratch/${USER}/${PBS_JOBID}
 
 
 echo "Sorting BAM file"
@@ -39,7 +39,7 @@ echo "Sorting BAM file"
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_picsort.bam ]; then
 
 echo ${TMPDIR};
-java -Xmx100G -jar $PICARD/picard.jar SortSam \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar SortSam \
   TMP_DIR=${TMPDIR}\
   INPUT=${FILE} \
   OUTPUT=${TMPDIR}/${FILE%.*}_picsort.bam \
@@ -63,7 +63,7 @@ echo "Cleaning Alignment file"
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_picsort_cleaned.bam ]; then
 
 
-java -Xmx100G -jar $PICARD/picard.jar CleanSam \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar CleanSam \
   TMP_DIR=${TMPDIR} \
   INPUT=${TMPDIR}/${FILE%.*}_picsort.bam \
   OUTPUT=${TMPDIR}/${FILE%.*}_picsort_cleaned.bam \
@@ -84,7 +84,7 @@ fi
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_dedup.bam ]; then
 
 
-java -Xmx100G -jar $PICARD/picard.jar MarkDuplicates \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar MarkDuplicates \
   TMP_DIR=${TMPDIR} \
   INPUT=${TMPDIR}/${FILE%.*}_picsort_cleaned.bam \
   OUTPUT=${TMPDIR}/${FILE%.*}_dedup.bam \
@@ -98,8 +98,8 @@ java -Xmx100G -jar $PICARD/picard.jar MarkDuplicates \
 cp ${TMPDIR}/${FILE%.*}_metrics.txt $PBS_O_WORKDIR/
 cp ${TMPDIR}/${FILE%.*}_dedup.bam $PBS_O_WORKDIR/
 else
-ln -s $PBS_O_WORKDIR/${FILE%.*}_metrics.txt
-ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup.bam
+ln -s $PBS_O_WORKDIR/${FILE%.*}_metrics.txt ${TMPDIR}/${FILE%.*}_metrics.txt
+ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup.bam ${TMPDIR}/${FILE%.*}_dedup.bam
 
 
 fi
@@ -111,7 +111,7 @@ fi
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam ]; then
 
 
-java -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadGroups \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadGroups \
   TMP_DIR=${TMPDIR} \
   INPUT=${TMPDIR}/${FILE%.*}_dedup.bam \
   OUTPUT=${TMPDIR}/${FILE%.*}_dedup_RG.bam \
@@ -126,7 +126,8 @@ java -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadGroups \
 }
 cp ${TMPDIR}/${FILE%.*}_dedup_RG.bam* $PBS_O_WORKDIR/
 else
-ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam*
+#need to add functionality to grab all the RG.bam files instead of just one.
+ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam ${TMPDIR}/${FILE%.*}_dedup_RG.bam
 
 fi
 }
@@ -134,9 +135,9 @@ fi
 ## Indel Realigner: create intervals
 {
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_target_intervals.list ]; then
+samtools index ${TMPDIR}/${FILE%.*}_dedup_RG.bam
 
-
-java -Xmx100G -jar $GATK \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $GATK \
   -T RealignerTargetCreator \
   -R ${REF} \
   -I ${TMPDIR}/${FILE%.*}_dedup_RG.bam \
@@ -146,7 +147,7 @@ exit 1
 }
 cp ${TMPDIR}/${FILE%.*}_target_intervals.list $PBS_O_WORKDIR/
 else
-ln -s $PBS_O_WORKDIR/${FILE%.*}_target_intervals.list
+ln -s $PBS_O_WORKDIR/${FILE%.*}_target_intervals.list ${TMPDIR}/${FILE%.*}_target_intervals.list
 
 fi
 }
@@ -155,7 +156,7 @@ fi
 {
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_realigned.bam ]; then
 
-java -Xmx100G -jar $GATK \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $GATK \
   -T IndelRealigner \
   -R ${REF} \
   -I ${TMPDIR}/${FILE%.*}_dedup_RG.bam \
