@@ -39,7 +39,7 @@ TMPDIR=/local/scratch/${USER}/${PBS_JOBID}
 
 
 
-echo "Sorting BAM file"
+echo "Sorting BAM of ${FILE}"
 
 
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_picsort.bam ]; then
@@ -64,7 +64,7 @@ fi
 
 
 
-echo "Cleaning Alignment file"
+echo "Cleaning Alignment file of ${FILE}"
 {
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_picsort_cleaned.bam ]; then
 
@@ -85,7 +85,7 @@ fi
 }
 
 
-echo "Marking Duplicates"
+echo "Marking Duplicates of ${FILE}"
 {
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_dedup.bam ]; then
 
@@ -112,7 +112,7 @@ fi
 }
 
 
-echo "Adding RG info"
+echo "Adding RG info of ${FILE}"
 {
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam ]; then
 
@@ -138,7 +138,7 @@ ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam ${TMPDIR}/${FILE%.*}_dedup_RG.bam
 fi
 }
 
-echo "Indel Realigner: create intervals"
+echo "Indel Realigner: create intervals of ${FILE}"
 {
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_target_intervals.list ]; then
 samtools index ${TMPDIR}/${FILE%.*}_dedup_RG.bam
@@ -159,7 +159,7 @@ ln -s $PBS_O_WORKDIR/${FILE%.*}_target_intervals.list ${TMPDIR}/${FILE%.*}_targe
 fi
 }
 
-echo "Indel Realigner: write realignments"
+echo "Indel Realigner: write realignments of ${FILE}"
 {
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_realigned.bam ]; then
 
@@ -176,10 +176,16 @@ cp ${TMPDIR}/${FILE%.*}_realigned.bam $PBS_O_WORKDIR/ &
 
 fi
 }
-echo "cleaning up"
+echo "cleaning up of ${FILE%.*}"
 #if your job stops midway move all the intermediate files into the main directory and comment out this section
 #rewrite to check this folder instead of the main folder for restart
+#!/bin/bash
+
+if [ ! -d /tmp/mydir ]; then
+
 mkdir IntermediateBAMfiles
+fi
+
 mv ${FILE%.*}_picsort.bam IntermediateBAMfiles &
 mv ${FILE%.*}_picsort_cleaned.bam IntermediateBAMfiles &
 mv ${FILE%.*}_dedup.bam IntermediateBAMfiles &
