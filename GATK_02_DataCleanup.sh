@@ -190,5 +190,6 @@ mv ${FILE%.*}_picsort.bam IntermediateBAMfiles &
 mv ${FILE%.*}_picsort_cleaned.bam IntermediateBAMfiles &
 mv ${FILE%.*}_dedup.bam IntermediateBAMfiles &
 mv ${FILE%.*}_dedup_RG.bam IntermediateBAMfiles &
-
+mv ${FILE%.*}_target_intervals.list IntermediateBAMfiles &
+mv ${FILE%.*}_metrics.txt IntermediateBAMfiles &
 echo "All done!"
