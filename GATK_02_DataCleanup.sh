@@ -1,4 +1,9 @@
 #!/bin/bash
+#be sure to add the --env _ variable to your parallel to pass the PBS variables set by torque
+#see this website http://www.gnu.org/software/parallel/parallel_tutorial.html
+# specifically this needs to be run and the -env _ set in your script when using parallel
+# parallel --record-env
+# cat ~/.parallel/ignored_vars
 # runs the complete Data Cleanup part of the GATK best practices pipeline
 # Sort, Clean, MarkDuplicates, Add ReadGroups and IndelRealigner
 # You'll need:
@@ -50,7 +55,7 @@ java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar SortSam \
   exit 1
 }
 
-cp ${TMPDIR}/${FILE%.*}_picsort.bam $PBS_O_WORKDIR/
+cp ${TMPDIR}/${FILE%.*}_picsort.bam $PBS_O_WORKDIR/ &
 else
 ln -s $PBS_O_WORKDIR/${FILE%.*}_picsort.bam ${TMPDIR}/${FILE%.*}_picsort.bam
 fi
@@ -72,7 +77,7 @@ java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar CleanSam \
   echo >&2 cleaning failed for $FILE
   exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_picsort_cleaned.bam $PBS_O_WORKDIR/
+cp ${TMPDIR}/${FILE%.*}_picsort_cleaned.bam $PBS_O_WORKDIR/ &
 else
 ln -s $PBS_O_WORKDIR/${FILE%.*}_picsort_cleaned.bam  ${TMPDIR}/${FILE%.*}_picsort_cleaned.bam
 
@@ -96,8 +101,8 @@ java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar MarkDuplicates \
   echo >&2 deduplicating failed for $FILE
   exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_metrics.txt $PBS_O_WORKDIR/
-cp ${TMPDIR}/${FILE%.*}_dedup.bam $PBS_O_WORKDIR/
+cp ${TMPDIR}/${FILE%.*}_metrics.txt $PBS_O_WORKDIR/ &
+cp ${TMPDIR}/${FILE%.*}_dedup.bam $PBS_O_WORKDIR/ &
 else
 ln -s $PBS_O_WORKDIR/${FILE%.*}_metrics.txt ${TMPDIR}/${FILE%.*}_metrics.txt
 ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup.bam ${TMPDIR}/${FILE%.*}_dedup.bam
@@ -125,7 +130,7 @@ java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadG
   echo >&2 RG adding failed for $FILE
   exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_dedup_RG.bam* $PBS_O_WORKDIR/
+cp ${TMPDIR}/${FILE%.*}_dedup_RG.bam* $PBS_O_WORKDIR/ &
 else
 #need to add functionality to grab all the RG.bam files instead of just one.
 ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam ${TMPDIR}/${FILE%.*}_dedup_RG.bam
@@ -146,7 +151,8 @@ java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $GATK \
 echo >&2 Target intervels list generation failed for $FILE
 exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_target_intervals.list $PBS_O_WORKDIR/
+cp ${TMPDIR}/${FILE%.*}_target_intervals.list $PBS_O_WORKDIR/ &
+cp ${TMPDIR}/${FILE%.*}*.bai $PBS_O_WORKDIR/ &
 else
 ln -s $PBS_O_WORKDIR/${FILE%.*}_target_intervals.list ${TMPDIR}/${FILE%.*}_target_intervals.list
 
@@ -166,7 +172,7 @@ java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $GATK \
 echo >&2 Indel realignment failed for $FILE
 exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_realigned.bam $PBS_O_WORKDIR/
+cp ${TMPDIR}/${FILE%.*}_realigned.bam $PBS_O_WORKDIR/ &
 
 fi
 }
@@ -174,9 +180,9 @@ echo "cleaning up"
 #if your job stops midway move all the intermediate files into the main directory and comment out this section
 #rewrite to check this folder instead of the main folder for restart
 mkdir IntermediateBAMfiles
-mv ${TMPDIR}/${FILE%.*}_picsort.bam IntermediateBAMfiles
-mv ${TMPDIR}/${FILE%.*}_picsort_cleaned.bam IntermediateBAMfiles
-mv ${TMPDIR}/${FILE%.*}_dedup.bam IntermediateBAMfiles
-mv ${TMPDIR}/${FILE%.*}_dedup_RG.bam IntermediateBAMfiles
+mv ${FILE%.*}_picsort.bam IntermediateBAMfiles &
+mv ${FILE%.*}_picsort_cleaned.bam IntermediateBAMfiles &
+mv ${FILE%.*}_dedup.bam IntermediateBAMfiles &
+mv ${FILE%.*}_dedup_RG.bam IntermediateBAMfiles &
 
 echo "All done!"
