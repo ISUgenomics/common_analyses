@@ -172,8 +172,11 @@ java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $GATK \
 echo >&2 Indel realignment failed for $FILE
 exit 1
 }
+samtools index ${TMPDIR}/${FILE%.*}_realigned.bam
 cp ${TMPDIR}/${FILE%.*}_realigned.bam $PBS_O_WORKDIR/ &
-
+cp ${TMPDIR}/${FILE%.*}_realigned.bam.bai $PBS_O_WORKDIR/
+cp ${TMPDIR}/${FILE%.*}_realigned.bai $PBS_O_WORKDIR/ 
+ 
 fi
 }
 echo "cleaning up of ${FILE%.*}"
