@@ -38,7 +38,9 @@ module use /data003/GIF/software/modules
 module load parallel
 module load java/1.7.0_76
 which java
-parallel --jobs 8 --sshloginfile \$PBS_NODEFILE \
+parallel --env _ --jobs 8 --sshloginfile \$PBS_NODEFILE \
   --joblog gatk_progress_05.log --workdir \$PWD < gatk.cmds
 ssh condo "qstat -f \${PBS_JOBID} |head"
 FIL
+
+#set the --env _ option in order to capture the PBS varaibles that would not be passed through otherwise to parallel on other nodes"
