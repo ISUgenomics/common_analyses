@@ -13,6 +13,7 @@ Synopsis
 	
 Output directory is fastqc and will be created upon running of script in the current folder.
 
+<<<<<<< HEAD
 Example
 runFASTQC.sh /work/GIF3/archive3/Purcell/021615_albacore/
 JobR_condo.sh 16 fastqc.commands 
