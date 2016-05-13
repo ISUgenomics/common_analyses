@@ -19,7 +19,7 @@ ORG=plantae
 # (select one of the aboove)
 # results will be stored in the new directroy with the genome suffix
 module use /shared/software/GIF/modules
-module load busco/2.0
+module load busco/1.2
 genome="$1"
 outname=$(basename ${genome%.*})
 python3 ${BUSCO}/busco.py \
