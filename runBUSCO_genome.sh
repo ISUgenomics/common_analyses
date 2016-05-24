@@ -26,6 +26,6 @@ python3 ${BUSCO}/busco.py \
   -o ${outname} \
   -in ${genome} \
   -l ${PROFILES}/${ORG} \
-  -m genome \
+  -m all \
   -c 16 \
   -f
