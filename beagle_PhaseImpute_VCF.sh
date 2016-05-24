@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # performs phasing and imputation of a VCF file
 # using Beagle
 # run the script as :
@@ -7,12 +8,10 @@
 INPUT="$1"
 OUTPUT=$(basename ${INPUT%.*})
 
-awk '(/#/ || ($4!~"," && $5!~","))' ${INPUT} > ${OUTPUT}_diAllelic.vcf
+awk '(/#/ || ($4!~"," && $5!~","))' ${INPUT} > ${OUTPUT}_biAllelic.vcf
 module load java/1.7.0_76
 module load beagle
 
-#put this in the module above
-#beagle="/data003/GIF/software/packages/beagle/r1399/beagle.jar"
 
 java -Xmx100g -jar ${beagle} \
  nthreads=16 \
@@ -20,5 +19,6 @@ java -Xmx100g -jar ${beagle} \
  phase-its=40 \
  impute-its=10 \
  ibd=true \
- gtgl=${OUTPUT}_diAllelic.vcf \
+ gtgl=${OUTPUT}_biAllelic.vcf \
  out=${OUTPUT}_PhasedImputed.vcf
+
