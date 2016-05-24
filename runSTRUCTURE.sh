@@ -39,3 +39,4 @@ echo "<Covariate>" > STRUCTURE_K$KVAL$UC.Qmatrix
 QHEADER=$(seq 1 1 $KVAL | awk '{print "Q"$1}' | tr '\n' '\t')
 echo -e "<Trait>\t$QHEADER" >> STRUCTURE_K$KVAL$UC.Qmatrix
 paste lines_$UNIQ.txt structOut_$UNIQ.$KVAL.meanQ  >> STRUCTURE_K$KVAL$UC.Qmatrix
+python /shared/software/GIF/programs/fastSTRUCTURE/e47212f/distruct.py -K $KVAL --input=structOut_$UNIQ --output=AdmixturePlot.svg      
