@@ -7,23 +7,18 @@
 # 2015/10/09 <arnstrm@iastate.edu>
 #
 #####################################
-# DO NOT USE THIS FOR PLANT BUSCOS
+# ONLY FOR PLANT BUSCOS
 #####################################
 #
 #
-ORG=arthropoda
-#ORG=bacteria
-#ORG=eukaryota
-#ORG=fungi
-#ORG=metazoa
-#ORG=vertebrata
+ORG=plantae
 
 # (select one of the aboove)
 # results will be stored in the new directroy with the genome suffix
 
 
 module use /shared/software/GIF/modules
-module load busco/1.2
+module load busco/1.2_plants
 genome="$1"
 outname=$(basename ${genome%.*})
 python3 ${BUSCO_HOME}/busco.py \
