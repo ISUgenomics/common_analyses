@@ -8,24 +8,19 @@ function printUsage () {
 
 Synopsis
 
-    $scriptName [-h | --help] <Number of commands per file> <commands_file>
+    $scriptName [-h | --help] <ReferenceGenomeToPolish>
 
 Description
 
-    This is a bash script that generates the sub file for each line/lines reading the command file
-    The submission file is formatted to run on condo with 48 hours walltime on default queue.
+    This is a bash script that will take all *.bax.h5 files in a folder and generate a list of pbalign commands, then generate a submission script for each one with the required modules loaded. The submission file is formatted to run on condo with 48 hours walltime on default queue.
 	The output will be named with the commands_file name along with the number suffix.
 
         -h, --help
         Brings up this help page
 
-    <commands_file>
-    File with commands. Each line should be a independent job that should not have any variables.
-    Eg., "sh bash_script.sh file1;" as first line, "sh bash_script.sh file2;" as second line and so on
-	makes a good commands file. Note that the lines should end with colon (;). 
+    <ReferenceGenomeToPolish>
+       This fasta file contains the genome that you wish to polish with the raw read data (bax.h5).
 
-#example input file creation
-#ls *h5 | xargs -I xx echo "pbalign --forQuiver xx genome245.fasta aligned_reads.xx.cmp.h5" > pbalign.commands
 
 Author
 
@@ -41,8 +36,11 @@ if [ $# -lt 1 ] ; then
         exit 0
 fi
 
+GENOME="$1"
 
-INFILE="$1"
+ls *bax.h5 | xargs -I xx echo "pbalign --forQuiver xx $1 aligned_reads.xx.cmp.h5" > pbalign.commands
+
+INFILE="pbalign.commands"
 
 
 
