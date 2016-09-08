@@ -35,6 +35,7 @@ REF="$GENOMEFASTA"
 SAMPLE=$(echo ${FILE} | cut -d "_" -f 1)
 UNIT=$(echo ${FILE} | cut -d "_" -f 2)
 RGLB=$(echo ${FILE} | cut -d "_" -f 3)
+GATK=$GATK_HOME/GenomeAnalysisTK.jar
 
 TMPDIR=/local/scratch/${USER}/${PBS_JOBID}
 mkdir -p /local/scratch/${USER}/${PBS_JOBID}
