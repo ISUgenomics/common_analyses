@@ -21,7 +21,7 @@
 ###
 ######################################
 
-module load picard_tools
+module load picard
 module load samtools
 module load java
 module load gatk
@@ -43,7 +43,7 @@ echo $TMPDIR
 echo "Sorting BAM of ${FILE}"
 
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_picsort.bam ]; then
-java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar SortSam \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD_HOME/picard.jar SortSam \
   TMP_DIR=${TMPDIR}\
   INPUT=${FILE} \
   OUTPUT=${FILE%.*}_picsort.bam \
@@ -56,7 +56,7 @@ fi
 
 echo "Cleaning Alignment file of ${FILE}"
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_picsort_cleaned.bam ]; then
-java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar CleanSam \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD_HOME/picard.jar CleanSam \
   TMP_DIR=${TMPDIR} \
   INPUT=${FILE%.*}_picsort.bam \
   OUTPUT=${FILE%.*}_picsort_cleaned.bam \
@@ -68,7 +68,7 @@ fi
 
 echo "Marking Duplicates of ${FILE}"
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_dedup.bam ]; then
-java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar MarkDuplicates \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD_HOME/picard.jar MarkDuplicates \
   TMP_DIR=${TMPDIR} \
   INPUT=${FILE%.*}_picsort_cleaned.bam \
   OUTPUT=${FILE%.*}_dedup.bam \
@@ -83,7 +83,7 @@ fi
 
 echo "Adding RG info of ${FILE}"
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam ]; then
-java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadGroups \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD_HOME/picard.jar AddOrReplaceReadGroups \
   TMP_DIR=${TMPDIR} \
   INPUT=${FILE%.*}_dedup.bam \
   OUTPUT=${FILE%.*}_dedup_RG.bam \
