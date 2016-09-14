@@ -4,9 +4,9 @@
 
 #command genomeModule READ1 READ2
 
-module load picard_tools
+module load picard
 module load java
-module load bwa/0.7.12b
+module load bwa/0.7.13
 module load samtools
 module load $1
 
