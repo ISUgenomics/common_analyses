@@ -21,9 +21,9 @@
 ###
 ######################################
 
-module load picard_tools
+module load picard
 module load samtools
-module load java 
+module load java
 module load gatk
 module load $1
 
@@ -35,92 +35,59 @@ REF="$GENOMEFASTA"
 SAMPLE=$(echo ${FILE} | cut -d "_" -f 1)
 UNIT=$(echo ${FILE} | cut -d "_" -f 2)
 RGLB=$(echo ${FILE} | cut -d "_" -f 3)
+GATK=$GATK_HOME/GenomeAnalysisTK.jar
+
 TMPDIR=/local/scratch/${USER}/${PBS_JOBID}
-
-
+mkdir -p /local/scratch/${USER}/${PBS_JOBID}
+echo $TMPDIR
 
 echo "Sorting BAM of ${FILE}"
 
-
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_picsort.bam ]; then
-
-echo ${TMPDIR};
-java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar SortSam \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD_HOME/picard.jar SortSam \
   TMP_DIR=${TMPDIR}\
   INPUT=${FILE} \
-  OUTPUT=${TMPDIR}/${FILE%.*}_picsort.bam \
+  OUTPUT=${FILE%.*}_picsort.bam \
   SORT_ORDER=coordinate \
   MAX_RECORDS_IN_RAM='null' || {
   echo >&2 sorting failed for $FILE
   exit 1
 }
-
-cp ${TMPDIR}/${FILE%.*}_picsort.bam $PBS_O_WORKDIR/ &
-else
-ln -s $PBS_O_WORKDIR/${FILE%.*}_picsort.bam ${TMPDIR}/${FILE%.*}_picsort.bam
 fi
 
-
-
-
-
 echo "Cleaning Alignment file of ${FILE}"
-{
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_picsort_cleaned.bam ]; then
-
-
-java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar CleanSam \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD_HOME/picard.jar CleanSam \
   TMP_DIR=${TMPDIR} \
-  INPUT=${TMPDIR}/${FILE%.*}_picsort.bam \
-  OUTPUT=${TMPDIR}/${FILE%.*}_picsort_cleaned.bam \
+  INPUT=${FILE%.*}_picsort.bam \
+  OUTPUT=${FILE%.*}_picsort_cleaned.bam \
   MAX_RECORDS_IN_RAM='null' || {
   echo >&2 cleaning failed for $FILE
   exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_picsort_cleaned.bam $PBS_O_WORKDIR/ &
-else
-ln -s $PBS_O_WORKDIR/${FILE%.*}_picsort_cleaned.bam  ${TMPDIR}/${FILE%.*}_picsort_cleaned.bam
-
 fi
-}
-
 
 echo "Marking Duplicates of ${FILE}"
-{
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_dedup.bam ]; then
-
-
-java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar MarkDuplicates \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD_HOME/picard.jar MarkDuplicates \
   TMP_DIR=${TMPDIR} \
-  INPUT=${TMPDIR}/${FILE%.*}_picsort_cleaned.bam \
-  OUTPUT=${TMPDIR}/${FILE%.*}_dedup.bam \
-  METRICS_FILE=${TMPDIR}/${FILE%.*}_metrics.txt \
+  INPUT=${FILE%.*}_picsort_cleaned.bam \
+  OUTPUT=${FILE%.*}_dedup.bam \
+  METRICS_FILE=${FILE%.*}_metrics.txt \
   ASSUME_SORTED=true \
   REMOVE_DUPLICATES=true \
   MAX_RECORDS_IN_RAM=5000000 || {
   echo >&2 deduplicating failed for $FILE
   exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_metrics.txt $PBS_O_WORKDIR/ &
-cp ${TMPDIR}/${FILE%.*}_dedup.bam $PBS_O_WORKDIR/ &
-else
-ln -s $PBS_O_WORKDIR/${FILE%.*}_metrics.txt ${TMPDIR}/${FILE%.*}_metrics.txt
-ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup.bam ${TMPDIR}/${FILE%.*}_dedup.bam
-
-
 fi
-}
-
 
 echo "Adding RG info of ${FILE}"
-{
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam ]; then
-
-
-java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadGroups \
+java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD_HOME/picard.jar AddOrReplaceReadGroups \
   TMP_DIR=${TMPDIR} \
-  INPUT=${TMPDIR}/${FILE%.*}_dedup.bam \
-  OUTPUT=${TMPDIR}/${FILE%.*}_dedup_RG.bam \
+  INPUT=${FILE%.*}_dedup.bam \
+  OUTPUT=${FILE%.*}_dedup_RG.bam \
   RGID=${SAMPLE} RGLB=${RGLB} \
   RGPL=illumina \
   RGPU=${UNIT} \
@@ -130,55 +97,37 @@ java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $PICARD/picard.jar AddOrReplaceReadG
   echo >&2 RG adding failed for $FILE
   exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_dedup_RG.bam* $PBS_O_WORKDIR/ &
-else
-#need to add functionality to grab all the RG.bam files instead of just one.
-ln -s $PBS_O_WORKDIR/${FILE%.*}_dedup_RG.bam ${TMPDIR}/${FILE%.*}_dedup_RG.bam
-
 fi
-}
 
 echo "Indel Realigner: create intervals of ${FILE}"
-{
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_target_intervals.list ]; then
-samtools index ${TMPDIR}/${FILE%.*}_dedup_RG.bam
+samtools index ${FILE%.*}_dedup_RG.bam
 
 java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $GATK \
   -T RealignerTargetCreator \
   -R ${REF} \
-  -I ${TMPDIR}/${FILE%.*}_dedup_RG.bam \
-  -o ${TMPDIR}/${FILE%.*}_target_intervals.list || {
+  -I ${FILE%.*}_dedup_RG.bam \
+  -o ${FILE%.*}_target_intervals.list || {
 echo >&2 Target intervels list generation failed for $FILE
 exit 1
 }
-cp ${TMPDIR}/${FILE%.*}_target_intervals.list $PBS_O_WORKDIR/ &
-cp ${TMPDIR}/${FILE%.*}*.bai $PBS_O_WORKDIR/ &
-else
-ln -s $PBS_O_WORKDIR/${FILE%.*}_target_intervals.list ${TMPDIR}/${FILE%.*}_target_intervals.list
-
 fi
-}
 
 echo "Indel Realigner: write realignments of ${FILE}"
-{
 if [ ! -f $PBS_O_WORKDIR/${FILE%.*}_realigned.bam ]; then
-
 java -Djava.io.tmpdir=$TMPDIR -Xmx100G -jar $GATK \
   -T IndelRealigner \
   -R ${REF} \
-  -I ${TMPDIR}/${FILE%.*}_dedup_RG.bam \
-  -targetIntervals ${TMPDIR}/${FILE%.*}_target_intervals.list \
-  -o ${TMPDIR}/${FILE%.*}_realigned.bam || {
+  -I ${FILE%.*}_dedup_RG.bam \
+  -targetIntervals ${FILE%.*}_target_intervals.list \
+  -o ${FILE%.*}_realigned.bam || {
 echo >&2 Indel realignment failed for $FILE
 exit 1
 }
-samtools index ${TMPDIR}/${FILE%.*}_realigned.bam
-cp ${TMPDIR}/${FILE%.*}_realigned.bam $PBS_O_WORKDIR/ &
-cp ${TMPDIR}/${FILE%.*}_realigned.bam.bai $PBS_O_WORKDIR/
-cp ${TMPDIR}/${FILE%.*}_realigned.bai $PBS_O_WORKDIR/ 
- 
 fi
-}
+
+samtools index ${FILE%.*}_realigned.bam
+
 echo "cleaning up of ${FILE%.*}"
 #if your job stops midway move all the intermediate files into the main directory and comment out this section
 #rewrite to check this folder instead of the main folder for restart
@@ -186,7 +135,7 @@ echo "cleaning up of ${FILE%.*}"
 
 if [ ! -d /tmp/mydir ]; then
 
-mkdir IntermediateBAMfiles
+mkdir -p IntermediateBAMfiles
 fi
 
 mv ${FILE%.*}_picsort.bam IntermediateBAMfiles &
@@ -195,4 +144,5 @@ mv ${FILE%.*}_dedup.bam IntermediateBAMfiles &
 mv ${FILE%.*}_dedup_RG.bam IntermediateBAMfiles &
 mv ${FILE%.*}_target_intervals.list IntermediateBAMfiles &
 mv ${FILE%.*}_metrics.txt IntermediateBAMfiles &
+
 echo "All done!"
