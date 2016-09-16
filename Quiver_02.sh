@@ -41,5 +41,5 @@ module load samtools
 cmph5tools.py merge --outFile out_all.cmp.h5 aligned_reads*
 cmph5tools.py sort --inPlace --deep out_all.cmp.h5
 samtools faidx $1 
-quiver out_all.cmp.h5 -j 16 -r $1 -o $1.polished
+quiver out_all.cmp.h5 -j 16 -r $1 -o $1_polished.fasta
 rm align_reads*
