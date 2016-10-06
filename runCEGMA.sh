@@ -1,12 +1,11 @@
 #!/bin/bash
 # Runs CEGMA for the genome
-module use /data004/software/GIF/modules
 module load cegma/2.5
-export CEGMATMP="/scratch/arnstrm"
+export CEGMATMP="/local/scratch/${USER}/${PBS_JOBID}"
 genome="$1"
 cegma \
   --ext \
-  --threads 32 \
+  --threads 16 \
   --verbose \
   --genome ${genome} \
   --output ${genome%.*}
