@@ -4,26 +4,26 @@
 
 #command genomeModule READ1 READ2
 
-module load picard
+module load picard/2.4.1
 module load java
-module load bwa/0.7.13
+module load bwa/0.7.12
 module load samtools
 module load $1
 
 REF="$GENOMEDIR/$GNAME"
 # this option might be the frequetly changed, hence not it's a variable
-THREADS="8"
+THREADS="16"
 # if the reads are paired then use -p option
 if [ "$#" -eq 3 ]; then
   READ1="$2"
   READ2="$3"
   OUTNAME=$(basename ${READ1%.*} | cut -f 1-2 -d "_")
-  bwa mem -M -t ${THREADS} ${REF} ${READ1} ${READ2} | samtools view -buS - > ${OUTNAME}.bam
+  bwa mem -M -x ont2d -t ${THREADS} ${REF} ${READ1} ${READ2} | samtools view -buS - > ${OUTNAME}.bam
 # if not just use the reads as single reads
 elif [ "$#" -eq 1 ]; then
   READ1="$2"
   OUTNAME=$(basename ${READ1%.*} | cut -f 1-2 -d "_")
-  bwa mem -M -t ${THREADS} ${REF} ${READ1} | samtools view -buS - > ${OUTNAME}.bam
+  bwa mem -M -x ont2d -t ${THREADS} ${REF} ${READ1} | samtools view -buS - > ${OUTNAME}.bam
 # if number of arguments do not match, raise error
 else
   echo "ERROR: INVALID NUMBER OF ARGUMENTS"
