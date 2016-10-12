@@ -11,7 +11,7 @@
 #####################################
 #
 #
-ORG=arthropoda
+#ORG=arthropoda
 #ORG=bacteria
 #ORG=eukaryota
 #ORG=fungi
@@ -25,6 +25,7 @@ ORG=arthropoda
 module use /shared/software/GIF/modules
 module load busco/1.2
 genome="$1"
+ORG="$2"
 outname=$(basename ${genome%.*})
 python3 ${BUSCO_HOME}/busco.py \
   -o ${outname} \
