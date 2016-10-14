@@ -18,7 +18,7 @@ samtools faidx ${REF}
 bwa index -a bwtsw ${REF}
 FIL
 # Create interval list (here 100 kb intervals)
-python fasta_length.py ${REF} > ${REF%.*}_length.txt
+fasta_length.py ${REF} > ${REF%.*}_length.txt
 bedtools makewindows -w 100000 -g ${REF%.*}_length.txt > ${REF%.*}_100kb_coords.bed
 java -Xmx100G -jar $PICARD_HOME/picard.jar BedToIntervalList \
   INPUT=${REF%.*}_100kb_coords.bed \
