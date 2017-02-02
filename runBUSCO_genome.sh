@@ -11,26 +11,46 @@
 #####################################
 #
 #
-#ORG=arthropoda
-#ORG=bacteria
-#ORG=eukaryota
-#ORG=fungi
-#ORG=metazoa
-#ORG=vertebrata
+#ORG=actinopterygii_odb9
+#ORG=arthropoda_odb9
+#ORG=ascomycota_odb9
+#ORG=aves_odb9
+#ORG=basidiomycota_odb9
+#ORG=dikarya_odb9
+#ORG=diptera_odb9
+#plants
+ORG=embryophyta_odb9
+#ORG=endopterygota_odb9
+#ORG=euarchontoglires_odb9
+#ORG=eukaryota_odb9
+#ORG=eurotiomycetes_odb9
+#ORG=fungi_odb9
+#ORG=hymenoptera_odb9
+#ORG=insecta_odb9
+#ORG=laurasiatheria_odb9
+#ORG=mammalia_odb9
+#ORG=metazoa_odb9
+#ORG=microsporidia_odb9
+#ORG=nematoda_odb9
+#ORG=pezizomycotina_odb9
+#ORG=saccharomycetales_odb9
+#ORG=saccharomyceta_odb9
+#ORG=sordariomyceta_odb9
+#ORG=tetrapoda_odb9
+#ORG=vertebrata_odb9
 
 # (select one of the aboove)
 # results will be stored in the new directroy with the genome suffix
 
 
 module use /shared/software/GIF/modules
-module load busco/1.2
+module load busco/2.0
 genome="$1"
-ORG="$2"
 outname=$(basename ${genome%.*})
-python3 ${BUSCO_HOME}/busco.py \
+python3 ${BUSCO_HOME}/BUSCO.py \
   -o ${outname} \
-  -in ${genome} \
+  -i ${genome} \
   -l ${PROFILES}/${ORG} \
-  -m all \
+  -m genome \
   -c 16 \
   -f
