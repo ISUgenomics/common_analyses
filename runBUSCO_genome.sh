@@ -6,9 +6,6 @@
 # Arun Seetharam
 # 2015/10/09 <arnstrm@iastate.edu>
 #
-#####################################
-# DO NOT USE THIS FOR PLANT BUSCOS
-#####################################
 #
 #
 #ORG=actinopterygii_odb9
@@ -43,7 +40,7 @@ ORG=embryophyta_odb9
 # results will be stored in the new directroy with the genome suffix
 
 
-module use /shared/software/GIF/modules
+module use /work/GIF/software/modules
 module load busco/2.0
 genome="$1"
 outname=$(basename ${genome%.*})
