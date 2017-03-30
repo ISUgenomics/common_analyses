@@ -47,13 +47,13 @@ MODE=genome
 
 
 module use /work/GIF/software/modules
-module load busco/2.0
+module load GIF/busco/2.0
 genome="$1"
 outname=$(basename ${genome%.*})
 python3 ${BUSCO_HOME}/BUSCO.py \
   -o ${outname} \
   -i ${genome} \
-  -l ${PROFILES}/${ORG} \
+  -l ${BUSCO_HOME}/${ORG} \
   -m ${MODE} \
   -c 16 \
   -f
