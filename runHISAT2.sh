@@ -15,7 +15,7 @@ hisat2 \
   -p ${p} \
   -x ${DBDIR}/${GENOME} \
   -1 ${R1_FQ} \
-  -2 ${R2_FQ} | \
+  -2 ${R2_FQ} \
   -S  ${OUTPUT}.sam &> ${OUTPUT}.log
 samtools view --threads 16 -b -o ${OUTPUT}.bam ${OUTPUT}.sam
 samtools sort -m 7G -o ${OUTPUT}_sorted.bam -T ${OUTPUT}_temp --threads 16 ${OUTPUT}.bam
