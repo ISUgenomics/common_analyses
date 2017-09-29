@@ -1,14 +1,19 @@
 #!/bin/bash
-module load perl
+
+#This script is expecting you to have all of your vcf files and vcf.idx files placed in a subfolder from where you ran GATK.  This way the files that are generated are placed in your GATK folder.
+#Also update the GATK location, Raw file and the reference for your run
+
+
+module load GIF/perl/5.24.1
 module load vcftools
-module load gatk
+module load GIF2/gatk
 
 vcffile=(*.vcf)
-
-RAW="combined_variants.vcf"
-REFERENCE="/data003/GIF/arnstrm/20150413_Graham_SoybeanFST/01_DATA/B_REF/Gmax_275_v2.0.fa"
+#this is just naming the vcf file that will be generated belwo.
+RAW="WhiteWildCultured.vcf"
+REFERENCE="/work/GIF/remkv6/Purcell/Abalone/15_WhiteWildCultured/H.rufescens.fasta"
 #MAXDEPTH=19950
-GATK="/data003/GIF/software/packages/gatk/3.3"
+GATK="/shared/software/GIF/programs/gatk/3.5"
 
 vcf-concat ${vcffile[@]} >> ../${RAW}
 
