@@ -5,22 +5,24 @@
 module load picard
 module load samtools
 module load bwa
-module load bedtools
+module load bedtools2
 module load parallel
 module load python
+module load bioawk
 REF="$1"
 #index genome for (a) picard, (b) samtools and (c) bwa
+bioawk -c fastx '{print}' $REF | sort -k1,1V | awk '{print ">"$1;print $2}' >Genome_sorted.fa
 parallel <<FIL
 java -Xmx100G -jar $PICARD_HOME/picard.jar CreateSequenceDictionary \
-  REFERENCE=${REF} \
-  OUTPUT=${REF%.*}.dict
-samtools faidx ${REF}
-bwa index -a bwtsw ${REF}
+  REFERENCE=Genome_sorted.fa \
+  OUTPUT=Genome_sorted.dict
+samtools faidx Genome_sorted.fa
+bwa index -a bwtsw Genome_sorted.fa
 FIL
 # Create interval list (here 100 kb intervals)
-fasta_length.py ${REF} > ${REF%.*}_length.txt
-bedtools makewindows -w 100000 -g ${REF%.*}_length.txt > ${REF%.*}_100kb_coords.bed
+fasta_length.py Genome_sorted.fa > Genome_sorted_length.txt
+bedtools makewindows -w 100000 -g Genome_sorted_length.txt > Genome_sorted_100kb_coords.bed
 java -Xmx100G -jar $PICARD_HOME/picard.jar BedToIntervalList \
-  INPUT=${REF%.*}_100kb_coords.bed \
-  SEQUENCE_DICTIONARY=${REF%.*}.dict \
-  OUTPUT=${REF%.*}_100kb_gatk_intervals.list
+  INPUT= Genome_sorted_100kb_coords.bed \
+  SEQUENCE_DICTIONARY=Genome_sorted.dict \
+  OUTPUT=Genome_sorted_100kb_gatk_intervals.list
