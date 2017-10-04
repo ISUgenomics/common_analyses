@@ -1,13 +1,22 @@
 #!/bin/bash
 module load jellyfish/2.2.5
+kmer=21
+filear=${@};
+for i in ${filear[@]}
+do
 
-kmer=$1
-a1=Black-Ab-F_S21_L005_R1_001.fastq.gz
-a2=Black-Ab-F_S21_L005_R2_001.fastq.gz
-b1=Black-Ab-M_S22_L005_R1_001.fastq.gz
-b2=Black-Ab-M_S22_L005_R2_001.fastq.gz
+if [ ! -f $i ]; then
+    echo "\"$i\" file not found!"
+    exit 1;
+fi
 
-jellyfish count -C -m $kmer -s 1000000000 -t 10 <(zcat ${a1}) <(zcat ${a2}) <(zcat ${b1}) <(zcat ${b2}) -o reads_K${kmer}.jf
+if [[ $i =~ \.gz$ ]]; then
+echo "files gzipped"
+jellyfish count -C -m $kmer -s 1000000000 -t 10 <(zcat ${filear[@]}) -o reads_K${kmer}.jf
+else
+jellyfish count -C -m $kmer -s 1000000000 -t 10 <(cat ${filear[@]}) -o reads_K${kmer}.jf
+fi
+
 jellyfish histo -t 16 reads_K${kmer}.jf > reads_K${kmer}.histo
 
 
