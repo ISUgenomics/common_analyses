@@ -2,7 +2,7 @@
 # perfomrs NR blast (blastx)
 infile="$1"
 outfile="$(basename "${infile%.*}").out"
-database="/path/to/protein/database"
+database="/work/GIF/databases/ncbi_nt/nt"
 module load ncbi-blast
 blastp \
  -query "${infile}" \

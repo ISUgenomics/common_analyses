@@ -2,7 +2,7 @@
 # perfomrs NR blast (blastx)
 infile="$1"
 outfile="$(basename "${infile%.*}").out"
-database="/home/severin/GIF_1/scripts/BLAST/DB/NR/nr"
+database="/work/GIF/databases/ncbi_nr/nr"
 module load ncbi-blast
 blastn \
  -query "${infile}" \
