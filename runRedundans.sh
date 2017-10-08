@@ -14,7 +14,8 @@ genome="$1"
 shift
 fastq="$@"
 out="${genome%.*}_redundans_output"
-mkdir -p ${out}
+#mkdir -p ${out}
+# doesn't like if you already make a output folder
 
 redundans.py \
      -v \
