@@ -1,7 +1,20 @@
 #!/bin/bash
-module load jellyfish/2.2.5
-kmer=21
+module load GIF2/jellyfish/2.2.5
+
+if [ $# -lt 2 ] ; then
+        echo ""
+        echo "usage: ./runGenomescope.sh <kmer_val> *.fastq.gz"
+        echo "runs the genomescope pipeline using the kmer value specified and all fastq files of a organism (shortreads only)"
+        echo "Note: you can softlink all reads (MP and PE) in the directory and supply them as *.fastq.gz"
+        echo ""
+        exit 0
+fi
+
+
+kmer="$1"
+shift
 filear=${@};
+
 for i in ${filear[@]}
 do
 
