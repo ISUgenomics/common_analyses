@@ -20,7 +20,7 @@ fi
 
 module load R
 module load java
-module load picard
+module load picard/2.9.0
 module load samtools
 module load GIF/qualimap
 
