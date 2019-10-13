@@ -1,5 +1,5 @@
 #!/bin/bash
-module load GIF2/jellyfish/2.2.5
+module load jellyfish
 
 if [ $# -lt 2 ] ; then
         echo ""
@@ -29,8 +29,9 @@ jellyfish count -C -m $kmer -s 1000000000 -t 10 <(zcat ${filear[@]}) -o reads_K$
 else
 jellyfish count -C -m $kmer -s 1000000000 -t 10 <(cat ${filear[@]}) -o reads_K${kmer}.jf
 fi
-
+done
 jellyfish histo -t 16 reads_K${kmer}.jf > reads_K${kmer}.histo
+
 
 
 # once the histo file is created, visit http://qb.cshl.edu/genomescope/ website to upload the histo file
