@@ -17,37 +17,33 @@ function mytest {
     fi
     return $status
 }
-
+# ******************************************
+# E D I T 
+# ******************************************
 # Update with the fullpath location of your sample fastq
 # read 1 and read 2 are provided as first and second argument, respectively
 destination="/ptmp/LAS/arnstrm/sention" # location where the results will be transferred
-fastq_folder="/ptmp/LAS/arnstrm/JRIAL11"
+fastq_folder="/ptmp/LAS/arnstrm/JRIAL11" # full path for the folder containing fastq
 fastq_1="$1" # assumes <unique name>_R1.fastq.gz
-fastq_2="$2"
-
-# parse info from file name (assumes <unique name>_R1.fastq.gz)
-unqname="$(basename ${fastq_1} | cut -f 1 -d "_")"
-
-# keep this as-is
-sample="${unqname}"
-group="${unqname}"
-platform="ILLUMINA"
-out="${unqname}"
-
-
-# Update with the location of the reference data files
-fasta="/ptmp/LAS/arnstrm/sention/TIL11_isu_pangenome_pseudomolecules.fasta"
+fastq_2="$2" # assumes <unique name>_R2.fastq.gz
+fasta="/ptmp/LAS/arnstrm/sention/TIL11_isu_pangenome_pseudomolecules.fasta" # reference genome, should contain faidx index (samtools)
+unqname="$(basename ${fastq_1} | cut -f 1 -d "_")" # parse info from file name (assumes <unique name>_R1.fastq.gz)
+nt=$(nproc) #number of threads to use in computation, set to number of cores in the server
+workdir="$TMPDIR/${out}" # files are written to TMPRDIR by default, this will decrease runtime for jobs
+# addition info (optional), providing these requires editing the recal step
 #dbsnp="/home/regression/references/b37/dbsnp_138.b37.vcf.gz"
 #known_Mills_indels="/home/regression/references/b37/Mills_and_1000G_gold_standard.indels.b37.vcf.gz"
 #known_1000G_indels="/home/regression/references/b37/1000G_phase1.indels.b37.vcf.gz"
 
-# Update with the location of the Sentieon software package and license file
+# ******************************************
+# D O   N O T   E D I T 
+# ******************************************
+sample="${unqname}"
+group="${unqname}"
+platform="ILLUMINA"
+out="${unqname}"
 ml sentieon-genomics
 export SENTIEON_INSTALL_DIR=/opt/rit/spack-app/linux-rhel7-x86_64/gcc-4.8.5/sentieon-genomics-201808.01-opfuvzrkzgocfdrhlxyjhpl2fvmik6x5
-
-# Other settings
-nt=$(nproc) #number of threads to use in computation, set to number of cores in the server
-workdir="$TMPDIR/${out}" # files are written to TMPRDIR by default, this will decrease runtime for jobs
 
 # ******************************************
 # 0. Setup
