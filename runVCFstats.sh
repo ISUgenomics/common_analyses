@@ -47,3 +47,32 @@ vcftools --vcf $1  --TajimaD 10000 --out ${out}_10000
 #inbreeding coefficient
 vcftools --vcf $1  --het --out ${out}
 
+# write a markdown file 
+
+function body() {
+# print the header (the first line of input)
+# and then run the specified command on the body (the rest of the input)
+# use it in a pipeline, e.g. ps | body grep somepattern
+    IFS= read -r header
+    printf '%s\n' "$header"
+    "$@"
+}
+
+
+echo "" > stats.md
+echo "## SNP count" >> stats.md
+cat populations.snps.vcf.snpcount | awk '{print "SNP count = "$1}' >> stats.md
+echo "" >> stats.md
+
+echo "## Mean Depth by Sample" >> stats.md
+more depth_summary.txt  | body sort -k 3rg | md >> stats.md
+echo "" >> stats.md
+
+echo "## Missing data by Sample" >> stats.md
+more populations.snps.vcf.imiss | body sort -k 5rg | md >> stats.md
+echo "" >> stats.md
+
+echo "## Top 20 most related" >> stats.md
+more populations.snps.vcf.relatedness | body sort -k 3rg | awk '$1!=$2' | head -n 20 | md >> stats.md
+echo "" >> stats.md
+
